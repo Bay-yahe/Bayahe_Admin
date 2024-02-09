@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Include Font Awesome CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Admin | BaY Yahe</title>
+    <link rel="icon" type="image/x-icon" href="img/ico/logoicon.ico">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <img src="img/logo-icon.png" alt="Logo">
+        </div>
+        <div class="right-panel">
+            <div class="login-card">
+                <h2>Login</h2>
+                <form id="loginForm" >
+                    <div class="input-group">
+                        <i class='bx bx-envelope'></i>
+                        <!-- Changed the icon to a different envelope icon -->
+                        <input type="email" id="email" placeholder="Email" required autocomplete="email">
+                    </div>                    
+                    <div class="input-group">
+                        <i class='bx bx-key'></i>
+                        <!-- Changed the icon to a different key icon -->
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" id="submit">Log In</button>
+                    <div class="signup-button">
+                        <small>Create Account?   </small><a href="signup.html">Sign Up</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, get, ref, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjfb-Aj8OZv4_QsrFMtn_mDRwH6DC8TEY",
+            authDomain: "bay-yahe-9f408.firebaseapp.com",
+            databaseURL: "https://bay-yahe-9f408-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bay-yahe-9f408",
+            storageBucket: "bay-yahe-9f408.appspot.com",
+            messagingSenderId: "426256480277",
+            appId: "1:426256480277:web:bdc69568d4379fb827761c"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth(app);
+        const dbref = ref(db);
+    
+        const SignInUser = evt => {
+            evt.preventDefault();
+    
+            const Email = document.getElementById('email').value;
+            const Password = document.getElementById('password').value;
+    
+            signInWithEmailAndPassword(auth, Email, Password)
+            .then((credentials) => {
+                get(child(dbref, 'Admin/' + credentials.user.uid))
+                .then((snapshot)=>{
+                    if(snapshot.exists()){
+                        const userData = snapshot.val();
+                        if (userData && userData.FirstName) {
+                            sessionStorage.setItem("admin-info", JSON.stringify({
+                                FirstName: userData.FirstName,
+                                LastName: userData.LastName 
+                            }));
+                            sessionStorage.setItem("admin-creds", JSON.stringify(credentials.user));
+                            window.location.href = 'index.html';
+                        } else {
+                            console.error("User data does not contain 'FirstName'");
+                        }
+                    } else {
+                        console.error("User data does not exist at the specified path");
+                        alert("User data not found. Please check your credentials.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error retrieving user data:", error);
+                    alert("An error occurred while logging in. Please try again later.");
+                });
+            })
+            .catch((error) => {
+                console.error("Authentication error:", error);
+                alert("Invalid email or password. Please try again.");
+            });
+        };
+    
+        const LoginForm = document.getElementById('loginForm');
+        LoginForm.addEventListener('submit', SignInUser);
+    </script>      
+    
+</body>
+</html>

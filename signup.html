@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Admin | BaY Yahe</title>
+    <link rel="icon" type="image/x-icon" href="img/ico/logoicon.ico">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <img src="img/logo-icon.png" alt="Logo">
+        </div>
+        <div class="right-panel">
+            <div class="login-card">
+                <h2>Sign Up</h2>
+                <form id="signupform">
+                    <div class="input-group">
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="firstName" placeholder="First Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="lastName" placeholder="Last Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-envelope'></i>
+                        <input type="email" id="email" placeholder="Email" required autocomplete="email">
+                    </div>                    
+                    <div class="input-group">
+                        <i class='bx bx-key'></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" id="signupinp">Sign Up</button>
+                    <div class="signup-button">
+                        <small>Existing Account?   </small><a href="login.html">Log In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, set, ref } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjfb-Aj8OZv4_QsrFMtn_mDRwH6DC8TEY",
+            authDomain: "bay-yahe-9f408.firebaseapp.com",
+            databaseURL: "https://bay-yahe-9f408-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bay-yahe-9f408",
+            storageBucket: "bay-yahe-9f408.appspot.com",
+            messagingSenderId: "426256480277",
+            appId: "1:426256480277:web:bdc69568d4379fb827761c"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth(app);
+    
+        const RegisterUser = evt => {
+            evt.preventDefault();
+    
+            const FName = document.getElementById('firstName').value;
+            const LName = document.getElementById('lastName').value;
+            const Email = document.getElementById('email').value;
+            const Password = document.getElementById('password').value;
+            const Signupform = document.getElementById('signupform');
+    
+            createUserWithEmailAndPassword(auth, Email, Password)
+                .then((credentials) => {
+                    const userRef = ref(db, 'Admin/' + credentials.user.uid);
+                    set(userRef, {
+                        FirstName: FName,
+                        LastName: LName
+                    })
+                    .then(() => {
+                        console.log("User data added successfully!");
+                        window.location.href = 'login.html';
+                    })
+                    .catch((error) => {
+                        console.error("Error setting user data:", error);
+                        alert("Error setting user data: " + error.message);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error creating user:", error);
+                    alert("Error creating user: " + error.message);
+                });
+        };
+    
+        document.getElementById('signupform').addEventListener('submit', RegisterUser);
+    </script>    
+</body>
+</html>
